@@ -128,9 +128,14 @@ function tree__read_node_at() {
 function __indent_at() {
   local tree="$1"
   local cursor=$2
-  local line=$(echo -e "$tree" | sed -n "${cursor}p")
-  local indent=$(echo "$line" | grep -o "^ *")
-  echo ${#indent} 
+
+  if [[ "$cursor" == 0 ]]; then
+    echo 0
+  else
+    local line=$(echo -e "$tree" | sed -n "${cursor}p")
+    local indent=$(echo "$line" | grep -o "^ *")
+    echo ${#indent}
+  fi
 }
 
 function __delete_line_at() {
@@ -164,6 +169,7 @@ function __insert_line_after() {
     else
       last_line_padding=""
     fi
+
 
     tree="$(echo -e "$tree$last_line_padding" | sed "$((cursor + 1))i$indent_sed$line")\n"
 
