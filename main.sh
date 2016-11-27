@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 
+# tree__init
+#
+#   returns: an empty tree, that is an empty string
 function tree__init() {
   echo ""
 }
 
+# tree__get_parent_at
+#   $1 tree   - quoted tree variable
+#   $2 cursor - 1-based line number ( from now on, a cursor )
+#
+#   returns: cursor of parent of specified node
 function tree__get_parent_at() {
   local tree="$1"
   local cursor="$2"
@@ -19,6 +27,14 @@ function tree__get_parent_at() {
   echo "$cursor"
 }
 
+# tree__children_at
+#   $1 tree     - quoted tree variable
+#   $2 cursor   - 1-based line number
+#   $3 strategy - (optional) "all_descendants" string
+#
+#   returns: a list of cursors separated by spaces representing the immediate
+#   children of the specified cursor. If "all_descendants" strategy is
+#   specified, all grand children and so on are included in the output.
 function tree__get_children_at() {
   local tree="$1"
   local cursor="$2"
@@ -47,6 +63,18 @@ function tree__get_children_at() {
   echo "$found_children" | sed "s/^ *//g"
 }
 
+# tree__children_at
+#   $1 tree  - quoted tree variable
+#   $2 visit - visit function
+#
+#   returns: nothing
+#
+#   visit function signature
+#     $1 node        - text at current node
+#     $2 cursor      - cursor
+#     $3 child_index - 1-based index representing this node position amongs its siblings.
+#     $4 is_leaf     - whether node is leaf or not
+#     $5 depth       - 1-based number representing depth in tree
 function tree__visit_depth() {
   local tree="$1"
   local visit="$2"
@@ -73,6 +101,11 @@ function tree__visit_depth() {
   done
 }
 
+# tree__is_leaf_at
+#   $1 tree   - quoted tree variable
+#   $2 cursor - 1-based line number
+#
+#   returns: 1 if the tree is a leaf node, or 0 if it isn't.
 function tree__is_leaf_at() {
   local tree="$1"
   local cursor=$2
@@ -84,6 +117,12 @@ function tree__is_leaf_at() {
   fi
 }
 
+# tree__append_at
+#   $1 tree   - quoted tree variable
+#   $2 cursor - 1-based line number
+#   $3 node   - text ( can be multline ) to append
+#
+#   returns: nothing
 function tree__append_at() {
   local tree="$1"
   local cursor=$2
@@ -104,6 +143,13 @@ function tree__append_at() {
   echo "$(__insert_line_after "$tree" "$target_cursor" "$node" "$children_indent")"
 }
 
+# tree__read_node_at
+#   $1 tree     - quoted tree variable
+#   $2 cursor   - 1-based line number
+#   $3 strategy - (optional) "all_descendants" string
+#
+#   returns: the text specified at cursor, with indent removed from the start.
+#   Use "all_descendants" strategy to include all descendants node recursively.
 function tree__read_node_at() {
   local tree="$1"
   local cursor=$2
@@ -123,8 +169,7 @@ function tree__read_node_at() {
   echo -e "$lines" | sed "$remove_indent_sed"
 }
 
-# text operations
-
+# private text operations
 function __indent_at() {
   local tree="$1"
   local cursor=$2
